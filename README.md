@@ -19,12 +19,12 @@ To run your app open [http://localhost:9630](http://localhost:9630) and do it wi
 
 `shadow-cljs` is configured by the `shadow-cljs.edn` config.
 
-`tailwindcss` is configured by the `tailwind.config.js` file. Postcss is configured in `postcss.config.js`. Also checkout `npm scripts` configured in `package.json`
+`tailwindcss` is configured by the `react_state_examples.config.js` file. Postcss is configured in `postcss.config.js`. Also checkout `npm scripts` configured in `package.json`
 
 
 ## Live reload
 
-Live reload is configured for `*.cljs` and `*.css` files. This is actually not true, it's using only output of shadow-cljs files `*.js` files to be exact, but you know, for the sake of clarity. More info in `tailwind.config.js`.
+Live reload is configured for `*.cljs` and `*.css` files. This is actually not true, it's using only output of shadow-cljs files `*.js` files to be exact, but you know, for the sake of clarity. More info in `react_state_examples.config.js`.
 
 ## REPL
 

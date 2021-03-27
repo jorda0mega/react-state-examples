@@ -2,6 +2,8 @@
   (:require [reagent.dom :as dom]
             [react-state-examples.views :as views]
             [react-state-examples.db :as db]
+            [react-state-examples.components.hello-react :refer [HelloReact]]
+            [react-state-examples.components.lorem-ipsum :refer [LoremIpsum]]
             [re-frame.core :as rf]))
 
 (rf/reg-event-db
@@ -11,7 +13,15 @@
 
 (defn app
   []
-  [views/Tabs])
+  [:<>
+   [views/Tabs]
+   (let [tab-selected @(rf/subscribe [:selected-tab])]
+     (case tab-selected
+       :hello-react [HelloReact]
+       :lorem-ipsum [LoremIpsum]
+       :login-form [:p "Login Form"]
+       :fun-people [:p "Fun People"]
+       nil))])
 
 (defn render
   []

@@ -25,6 +25,17 @@
   (fn [db _]
     (:tabs db)))
 
+(rf/reg-sub
+  :selected-tab
+  (fn [db _]
+    (.log js/console "getting called")
+    (->> db
+        :tabs
+        (filter #(:selected %))
+        first
+        :id)))
+    ;(.log js/console (str "selected this tab: " selected-tab))))
+
 (defn Tab
   "component to create a styled tab based on selection"
   [idx tab]

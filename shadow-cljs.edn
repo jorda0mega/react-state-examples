@@ -5,6 +5,8 @@
  :dev-http
  {8020 "public"}
 
+ :nrepl {:port 3333}
+
  :builds
  {:app
   {:target :browser

@@ -2,29 +2,34 @@
   (:require [reagent.core :as r]
             [react-state-examples.components.lorem-ipsum :refer [default-paragraph]]))
 
-(defonce initial-state {:tabs [{:id :hello-react
-                                :label "Hello React"
-                                :selected true}
-                               {:id :lorem-ipsum
-                                :label "Lorem Ipsum"
-                                :selected false}
-                               {:id :login-form
-                                :label "Login Form"
-                                :selected false}
-                               {:id :fun-people
-                                :label "Fun People"
-                                :selected false}]
-                        :paragraphs [default-paragraph default-paragraph]})
-
-;(defonce initial-state {:tabs {:hello-react
-;                               {:label    "Hello React"
+;(defonce initial-state {:tabs [{:id :hello-react
+;                                :label "Hello React"
 ;                                :selected true}
-;                               :lorem-ipsum
-;                               {:label    "Lorem Ipsum"
+;                               {:id :lorem-ipsum
+;                                :label "Lorem Ipsum"
 ;                                :selected false}
-;                               :login-form
-;                               {:label    "Login Form"
+;                               {:id :login-form
+;                                :label "Login Form"
 ;                                :selected false}
-;                               :fun-people
-;                               {:label    "Fun People"
-;                                :selected false}}})
+;                               {:id :fun-people
+;                                :label "Fun People"
+;                                :selected false}]
+;                        :paragraphs [default-paragraph default-paragraph]})
+
+(defonce initial-state {:tabs          {"TAB_HELLO_REACT"
+                                        {:label "Hello React"
+                                         :order 1}
+                                        "TAB_LOREM_IPSUM"
+                                        {:label "Lorem Ipsum"
+                                         :order 2}
+                                        "TAB_LOGIN_FORM"
+                                        {:label "Login Form"
+                                         :order 3}
+                                        "TAB_FUN_PEOPLE"
+                                        {:label "Fun People"
+                                         :order 4}}
+                        :active-tab-id "TAB_HELLO_REACT"
+                        :login-form    {:missing-username false
+                                        :missing-password false}
+                        :react-state-examples.components.lorem-ipsum/paragraphs
+                                       [default-paragraph default-paragraph]})

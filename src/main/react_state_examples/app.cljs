@@ -4,6 +4,8 @@
             [react-state-examples.db :as db]
             [react-state-examples.components.hello-react :refer [HelloReact]]
             [react-state-examples.components.lorem-ipsum :refer [LoremIpsum]]
+            [react-state-examples.components.login-form :refer [LoginForm]]
+            [react-state-examples.components.fun-people :refer [FunPeople]]
             [re-frame.core :as rf]))
 
 (rf/reg-event-db
@@ -13,19 +15,19 @@
 
 (defn app
   []
-  [:<>
-   [views/Tabs]
-   (let [tab-selected @(rf/subscribe [:selected-tab])]
+  (let [tab-selected @(rf/subscribe [:active-tab-id])]
+    [:<>
+     [views/Tabs]
      (case tab-selected
-       :hello-react [HelloReact]
-       :lorem-ipsum [LoremIpsum]
-       :login-form [:p "Login Form"]
-       :fun-people [:p "Fun People"]
-       nil))])
+       "TAB_HELLO_REACT" [HelloReact]
+       "TAB_LOREM_IPSUM" [LoremIpsum]
+       "TAB_LOGIN_FORM" [LoginForm]
+       "TAB_FUN_PEOPLE" [FunPeople]
+       (.warn js/console "Unknown tab id:" tab-selected))]))
 
 (defn render
   []
-  (dom/render [app]
+  (dom/render [(var app)]
               (.getElementById js/document "app")))
 
 ;; start is called by init and after code reloading finishes

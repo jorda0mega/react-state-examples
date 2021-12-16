@@ -2,7 +2,10 @@
   (:require
     [re-frame.core :as rf]
     [taoensso.timbre :as timbre]
+    [clojure.string :as str]
     [react-state-examples.util :refer [form->values]]))
+
+(def validation-fields #{::missing-username? ::missing-password?})
 
 ;;--------------------------------------------------------------------------------
 ;; EVENTS
@@ -12,10 +15,44 @@
   (fn [db [_ form-values]]
     (let [username (:username form-values)
           password (:password form-values)]
-      (timbre/info "empty username: " (empty? username))
-      (timbre/info "empty password: " (empty? password))
-      (assoc-in db [:login-form] {:missing-username (empty? username)
-                                  :missing-password (empty? password)}))))
+      ;(update db ::login-form merge {::missing-username? (str/blank? username)
+      ;                               ::missing-password? (str/blank? password)})
+      (-> db
+          (assoc ::missing-username? (str/blank? username))
+          (assoc ::missing-password? (str/blank? password))))))
+;(-> db
+;    (assoc-in [:login-form :missing-username?] (str/blank? username))
+;    (assoc-in [:login-form :missing-password?] (str/blank? password))))))
+
+(rf/reg-event-db
+  ::log-user-in
+  (fn [db [_ success?]]
+    (assoc db ::log-in-success? success?)))
+
+(rf/reg-event-db
+  ::log-user-in-error
+  (fn [db [_ success?]]
+    (assoc db ::log-in-success? success?)))
+
+(rf/reg-event-fx
+  ::submit-form
+  (fn [cofx event]
+    (let [db (:db cofx)]
+      {:db                  (assoc db ::form-loading? true)
+       ::make-login-request {:success [::log-user-in]
+                             :error   [::log-user-in-error]}})))
+
+(def percent-change-error 3)
+
+(rf/reg-fx
+  ::make-login-request
+  (fn [{:keys [success error]}]
+    (js/setTimeout (fn []
+                     (let [dice-roll (rand-int 10)]
+                       (if (< dice-roll percent-change-error)
+                         (rf/dispatch (conj error "bad request"))
+                         (rf/dispatch (conj success true)))))
+                   (+ 100 (rand-int 500)))))
 
 ;;--------------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
@@ -24,27 +61,38 @@
 (rf/reg-sub
   ::error-count
   (fn [db _]
-    (count (filter #(= true (val %)) (:login-form db)))))
+    (as-> db $
+          (select-keys $ validation-fields)
+          (vals $)
+          (filter true? $)
+          (count $))))
+;(let [(select-keys db validation-fields)])
+;(count (filter #(= true (val %)) (:login-form db)))))
 
 (rf/reg-sub
   ::show-error
   :<- [::error-count]
   (fn [error-count]
-    (> error-count 0)))
+    (not (zero? error-count))))
 
 (rf/reg-sub
   ::need-username?
   (fn [db _]
-    (get-in db [:login-form :missing-username])))
-;
+    (::missing-username? db)))
+
 (rf/reg-sub
   ::need-password?
   (fn [db _]
-    (get-in db [:login-form :missing-password])))
+    (::missing-password? db)))
 
 ;;--------------------------------------------------------------------------------
 ;; VIEWS
 ;;--------------------------------------------------------------------------------
+(defn ErrorCountMessage
+  [error-count]
+  (str "There " (if (= error-count 1) "was " "were ") error-count " error" (if (= error-count 1) "" "s") " with your submission"))
+
+
 (defn FormErrorMessage
   []
   (let [error-count @(rf/subscribe [::error-count])
@@ -56,7 +104,8 @@
        [:svg.h-5.w-5.text-red-400 {:xmlns "http://www.w3.org/2000/svg" :viewBox "0 0 20 20" :fill "currentColor" :aria-hidden "true"}
         [:path {:fill-rule "evenodd" :d "M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" :clip-rule "evenodd"}]]]
       [:div.ml-3
-       [:h3.text-sm.font-medium.text-red-800 (str "There " (if (= error-count 1) "was " "were ") error-count " error" (if (= error-count 1) "" "s") " with your submission")]
+       [:h3.text-sm.font-medium.text-red-800
+        [ErrorCountMessage error-count]]
        [:div.mt-2.text-sm.text-red-700
         [:ul.list-disc.pl-5.space-y-1
          (when need-username?
